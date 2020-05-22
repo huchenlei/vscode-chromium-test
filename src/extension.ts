@@ -3,6 +3,11 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
+/**
+ * Get the full file path of current file in text editor.
+ *
+ * @throws TypeError: when |vscode.window.activeTextEditor| is undefined
+ */
 function getCurrentFilePath() {
   return vscode.window.activeTextEditor.document.fileName;
 }
@@ -13,7 +18,7 @@ function pasteToClipboard(input: string) {
 }
 
 function log(message: string): void {
-  vscode.window.setStatusBarMessage(message, 3000);
+  vscode.window.showInformationMessage(message);
 }
 
 function isChromiumDir(file_path: string): boolean {
@@ -62,26 +67,34 @@ class ChromiumTestManager {
 export function activate(context: vscode.ExtensionContext) {
   const workspaceUri = (vscode.workspace.workspaceFolders !== undefined) ? vscode.workspace.workspaceFolders[0].uri : undefined;
   const configuration = vscode.workspace.getConfiguration('chromium', workspaceUri);
-  const chromiumDir = configuration.get<string>("chromium.rootDir");
-  const chromiumTargetConfig = configuration.get<string>("chromium.targetConfig");
+
+  let chromiumDir = configuration.get<string>("chromium.rootDir");
+  let chromiumTargetConfig = configuration.get<string>("chromium.targetConfig");
 
   if (chromiumDir === undefined) {
     log("chromium.rootDir not configed in config.json");
-    return;
+    chromiumDir = "chromium/src";
   }
+
+  chromiumDir = path.resolve(chromiumDir);
 
   if (chromiumTargetConfig === undefined) {
     log("chromium.targetConfig not configed in config.json");
-    return;
+    chromiumTargetConfig = "Default";
   }
 
   const testManager = new ChromiumTestManager(chromiumDir, chromiumTargetConfig);
 
   context.subscriptions.push(vscode.commands.registerCommand(
     'chromium.copyWebTestCommand', () => {
-      const command = testManager.getCompileCommand("content_shell") + " && " +
-        testManager.getWebTestCommand(getCurrentFilePath());
-      pasteToClipboard(command);
+      try {
+        const command = testManager.getCompileCommand("content_shell") + " && " +
+          testManager.getWebTestCommand(getCurrentFilePath());
+        pasteToClipboard(command);
+        vscode.window.showInformationMessage(command);
+      } catch (e) {
+        log(`vscode-chromium-test: ${e}`);
+      }
     }));
 }
 
