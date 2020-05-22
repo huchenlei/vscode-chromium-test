@@ -18,21 +18,18 @@
     "url": "https://github.com/chenleihu/chromium-test/issues"
   },
   "activationEvents": [
-    "onCommand:chromium.copyWebTestCommand"
+    "onCommand:chromium.copyWebTestCommand",
+    "onCommand:chromium.runWebTest"
   ],
   "main": "./out/src/extension",
   "contributes": {
-    "keybindings": [
-      {
-        "command": "chromium.copyWebTestCommand",
-        "key": "ctrl+x ctrl+t",
-        "when": "editorTextFocus"
-      }
-    ],
     "commands": [
       {
         "command": "chromium.copyWebTestCommand",
         "title": "Chromium: copy web test command"
+      }, {
+        "command": "chromium.runWebTest",
+        "title": "Chromium: run web test"
       }
     ]
   },

@@ -20,23 +20,32 @@ function pasteToClipboard(input: string) {
   vscode.window.setStatusBarMessage(`"${input}" was copied to the clipboard.`, 3000);
 }
 
+
+function getTerminal(): vscode.Terminal {
+  if (vscode.window.terminals.length == 0) {
+    const terminal = vscode.window.createTerminal();
+    terminal.sendText("cd src\n");
+    return terminal;
+  } else {
+    return vscode.window.terminals[0];
+  }
+}
+
+function runCommand(command: string) {
+  const terminal = getTerminal();
+  terminal.show();
+  terminal.sendText(command + "\n");
+}
+
 function log(message: string): void {
   vscode.window.showInformationMessage(message);
-}
-
-function isChromiumDir(file_path: string): boolean {
-  return false;
-}
-
-function isWebPlatformTest(file_path: string): boolean {
-  return false;
 }
 
 class ChromiumTestManager {
   rootDir: string;
   compileTarget: string;
 
-  public constructor (
+  public constructor(
     rootDir: string,
     compileTarget: string = "Default"
   ) {
@@ -57,7 +66,7 @@ class ChromiumTestManager {
    * @throws string when test file has invalid file extension
    */
   public getWebTestCommand(file_path: string): string {
-    if (!['html', 'php'].includes(path.extname(file_path)))
+    if (!['.html', '.php'].includes(path.extname(file_path)))
       throw `Wrong extension(${path.extname(file_path)}) for web test. Expect .html or .php.`;
 
     const web_test_path = [this.rootDir, "third_party", "blink", "web_tests"].join(path.sep);
@@ -91,18 +100,30 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   const testManager = new ChromiumTestManager(chromiumDir, chromiumTargetConfig);
+  function getTestCommand() {
+    return testManager.getCompileCommand("content_shell") + " && " +
+      testManager.getWebTestCommand(getCurrentFilePath());
+  }
 
-  context.subscriptions.push(vscode.commands.registerCommand(
-    'chromium.copyWebTestCommand', () => {
+  function wrap_exception(f: () => void): () => void {
+    return () => {
       try {
-        const command = testManager.getCompileCommand("content_shell") + " && " +
-          testManager.getWebTestCommand(getCurrentFilePath());
-        pasteToClipboard(command);
-        vscode.window.showInformationMessage(command);
+        f();
       } catch (e) {
         log(`vscode-chromium-test: ${e}`);
       }
-    }));
+    };
+  }
+
+  context.subscriptions.push(vscode.commands.registerCommand(
+    'chromium.copyWebTestCommand', wrap_exception(() => {
+      pasteToClipboard(getTestCommand());
+    })));
+
+  context.subscriptions.push(vscode.commands.registerCommand(
+    'chromium.runWebTest', wrap_exception(() => {
+      runCommand(getTestCommand());
+    })));
 }
 
 // this method is called when your extension is deactivated
