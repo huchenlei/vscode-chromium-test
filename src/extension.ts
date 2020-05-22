@@ -54,6 +54,7 @@ class ChromiumTestManager {
    *
    * @param file_path full path to test file
    * @returns bash command that can execute test file
+   * @throws string when test file has invalid file extension
    */
   public getWebTestCommand(file_path: string): string {
     if (!['html', 'php'].includes(path.extname(file_path)))
