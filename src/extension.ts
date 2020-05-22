@@ -6,10 +6,13 @@ import * as path from 'path';
 /**
  * Get the full file path of current file in text editor.
  *
- * @throws TypeError: when |vscode.window.activeTextEditor| is undefined
+ * @throws string: when |vscode.window.activeTextEditor| is undefined
  */
-function getCurrentFilePath() {
-  return vscode.window.activeTextEditor.document.fileName;
+function getCurrentFilePath(): string {
+  const editor = vscode.window.activeTextEditor;
+  if (!editor)
+    throw "no active editor";
+  return editor.document.fileName;
 }
 
 function pasteToClipboard(input: string) {
