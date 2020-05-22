@@ -11,7 +11,7 @@ import * as path from 'path';
 function getCurrentFilePath(): string {
   const editor = vscode.window.activeTextEditor;
   if (!editor)
-    throw "no active editor";
+    throw "No active editor";
   return editor.document.fileName;
 }
 
@@ -56,6 +56,9 @@ class ChromiumTestManager {
    * @returns bash command that can execute test file
    */
   public getWebTestCommand(file_path: string): string {
+    if (!['html', 'php'].includes(path.extname(file_path)))
+      throw `Wrong extension(${path.extname(file_path)}) for web test. Expect .html or .php.`;
+
     const web_test_path = [this.rootDir, "third_party", "blink", "web_tests"].join(path.sep);
     const test_script_path = ["third_party", "blink", "tools", "run_web_tests.py"].join(path.sep);
     const test_path = path.relative(web_test_path, file_path);
