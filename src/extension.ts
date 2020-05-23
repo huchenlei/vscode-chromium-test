@@ -59,7 +59,7 @@ class ChromiumTestManager {
 
   /**
    * Get a command that can be used to execute the web tests
-   * under third_party/blink/web_tests/ dir
+   * under third_party/blink/web_tests/ dir.
    *
    * @param file_path full path to test file
    * @returns bash command that can execute test file
@@ -75,6 +75,13 @@ class ChromiumTestManager {
     return `${test_script_path} -t ${this.compileTarget} ${test_path}`;
   }
 
+  /**
+   * Get a command that can be used to execute the cpp test with current
+   * chromium compile target.
+   *
+   * @param test_executable name of test executable, e.g. blink_unittests
+   * @param test_name full test name to run, e.g. DocumentLoaderSimTest.*
+   */
   public getCppTestCommand(test_executable: string, test_name: string): string {
     const absolate_executable_path =
       path.join(this.rootDir, 'out', this.compileTarget, test_executable);
