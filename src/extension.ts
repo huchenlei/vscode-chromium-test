@@ -69,14 +69,17 @@ class ChromiumTestManager {
     if (!['.html', '.php'].includes(path.extname(file_path)))
       throw `Wrong extension(${path.extname(file_path)}) for web test. Expect .html or .php.`;
 
-    const web_test_path = [this.rootDir, "third_party", "blink", "web_tests"].join(path.sep);
-    const test_script_path = ["third_party", "blink", "tools", "run_web_tests.py"].join(path.sep);
+    const web_test_path = path.join(this.rootDir, "third_party", "blink", "web_tests");
+    const test_script_path = path.join("third_party", "blink", "tools", "run_web_tests.py");
     const test_path = path.relative(web_test_path, file_path);
     return `${test_script_path} -t ${this.compileTarget} ${test_path}`;
   }
 
-  public getBrowserTestCommand(file_path: string): string {
-    return "";
+  public getCppTestCommand(test_executable: string, test_name: string): string {
+    const absolate_executable_path =
+      path.join(this.rootDir, 'out', this.compileTarget, test_executable);
+
+    return `${absolate_executable_path} --gtest_filter=${test_name}`;
   }
 }
 
