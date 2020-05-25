@@ -27,7 +27,8 @@
       {
         "command": "chromium.copyWebTestCommand",
         "title": "Chromium: copy web test command"
-      }, {
+      },
+      {
         "command": "chromium.runWebTest",
         "title": "Chromium: run web test"
       }
@@ -43,6 +44,5 @@
     "vscode": "^1.1.33",
     "@types/node": "^6.0.40",
     "@types/mocha": "^2.2.32"
-  },
-  "dependencies": {}
+  }
 }
