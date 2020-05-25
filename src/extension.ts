@@ -31,6 +31,12 @@ function getTerminal(): vscode.Terminal {
   }
 }
 
+/**
+ * Note: if there is existing text in terminal buffer, the command will be
+ * directly append to existing content, which might result in unwanted behaviour.
+ *
+ * @param command command to be run in terminal
+ */
 function runCommand(command: string) {
   const terminal = getTerminal();
   terminal.show();
